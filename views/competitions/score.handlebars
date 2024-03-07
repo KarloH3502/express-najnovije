@@ -1,0 +1,25 @@
+<div class="p-2">
+    <div class="overflow-x-auto">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User_ID</th>
+                    <th>Competition_ID</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {{#each result.items}}
+                <tr>
+                    <th>{{this.apply_id}}</th>
+                    <th>{{this.id_user}}</th>
+                    <th>{{this.id_competition}}</th>
+                    <th>{{this.score}}</th>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>

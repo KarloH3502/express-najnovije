@@ -7,9 +7,9 @@ const { db } = require("../services/db.js");
 // GET /competitions
 router.get("/", authRequired, function (req, res, next) {
     const stmt = db.prepare(`
-        SELECT c.id, c.name, c.description, u.name AS author, c.apply_till
-        FROM competitions c, users u
-        WHERE c.author_id = u.id
+        SELECT c.id, c.name, c.description, u.name AS author, c.apply_till, l.id AS login_id, l.id_user AS login_uid, l.id_competition AS login_cid, l.score
+        FROM competitions c, users u, login l
+        WHERE c.author_id = u.id and l.id_user = u.id AND l.id_competition = c.id
         ORDER BY c.apply_till
     `);
     const result = stmt.all();
@@ -69,15 +69,15 @@ const schema_edit = Joi.object({
 
 // zadatak 2
 
-//GET/competitions/login
-router.get("/application/:id", function (req, res, next){
+//GET/competitions/apply/:id
+router.get("/apply/:id", function (req, res, next){
     //do validation
     const result = schema_id.validate(req.params);
     if(result.error){
         throw new Error("Neispravan poziv");
     }
 //Je li korisnik upisan
-const checkstmt1=db.prepare("SELECT count(*) FROM application WHERE id_user = ? AND id_competitions = ?;");
+const checkstmt1=db.prepare("SELECT count(*) FROM apply WHERE id_user = ? AND id_competition = ?;");
 const checkResult1=checkstmt1.get(req.user.sub, req.params.id);
 
 console.log(checkResult1);
@@ -87,7 +87,7 @@ if(checkResult1["count(*)"]>=1) {
 }
 else {
     //Upis u bazu
-    const stmt = db.prepare("INSERT INTO application(id_user, id_competitions) VALUES (?, ?);");
+    const stmt = db.prepare("INSERT INTO apply(id_user, id_competition) VALUES (?, ?);");
     const updateResult = stmt.run(req.user.sub, req.params.id);
     if(updateResult.changes && updateResult.changes === 1) {
         res.render("competitions/form",{result:{success:true}});
